@@ -172,7 +172,7 @@ class _EmployeePageState extends State<EmployeePage> {
         throw Exception('Failed to update employee location');
       }
 
-      _employeeLocation.value = _employeeLocation.value?.copyWith(
+      _employeeLocation.value = EmployeeLocation(
         employeeId: employeeId,
         longitude: locationData.longitude.toString(),
         latitude: locationData.latitude.toString(),
