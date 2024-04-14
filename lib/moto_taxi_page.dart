@@ -8,7 +8,7 @@ import 'dart:math';
 class MotoTaxiPage extends StatefulWidget {
   final String userId;
 
-  MotoTaxiPage({required this.userId});
+  MotoTaxiPage({required this.userId, required int requestId});
 
   @override
   _MotoTaxiPageState createState() => _MotoTaxiPageState();

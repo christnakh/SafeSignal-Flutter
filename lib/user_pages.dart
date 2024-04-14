@@ -1,19 +1,24 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
 class UserPage extends StatefulWidget {
   final String userId;
 
-  UserPage({required this.userId});
+  const UserPage({super.key, required this.userId});
 
   @override
   _UserPageState createState() => _UserPageState();
 }
 
 class _UserPageState extends State<UserPage> {
+  bool _isLoading = true;
+
   late LocationData _currentLocation;
+
+  final Dio _dio = Dio();
 
   @override
   void initState() {
@@ -24,59 +29,58 @@ class _UserPageState extends State<UserPage> {
   Future<void> _getLocation() async {
     Location location = Location();
 
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         return;
       }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         return;
       }
     }
 
-    _locationData = await location.getLocation();
+    locationData = await location.getLocation();
     setState(() {
-      _currentLocation = _locationData;
+      _currentLocation = locationData;
+      _isLoading = false;
     });
   }
 
   Future<int> findNearestEmployee(int role) async {
-    if (_currentLocation == null) {
-      await _getLocation(); // Ensure location is fetched before proceeding
-    }
-
-    if (_currentLocation == null) {
-      throw Exception('Location not available');
-    }
-
     try {
-      final response = await http.post(
+      final response = await _dio.postUri(
         Uri.parse('http://192.168.1.103:3000/find_nearest_employee'),
-        body: jsonEncode({
+        data: jsonEncode({
           'user_id': widget.userId,
           'latitude': _currentLocation.latitude,
           'longitude': _currentLocation.longitude,
           'role': role
         }),
-        headers: {'Content-Type': 'application/json'},
+        options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        return responseData['request_id'];
-      } else {
-        throw Exception('Failed to find nearest employee');
+      final data = response.data;
+      if (data == null || data.isEmpty) {
+        throw Exception('Data is Empty');
       }
+
+      print(response.statusCode);
+
+      print(data);
+      print(data.runtimeType);
+
+      final responseData = jsonDecode(data);
+      return responseData['request_id'];
     } catch (e) {
       throw Exception('Failed to connect to server: $e');
     }
@@ -84,9 +88,13 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Material(child: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Choose a Service'),
+        title: const Text('Choose a Service'),
       ),
       body: Center(
         child: Column(
@@ -96,22 +104,25 @@ class _UserPageState extends State<UserPage> {
               onPressed: () async {
                 try {
                   int requestId = await findNearestEmployee(1); // Moto Taxi
-                  Navigator.pushNamed(
-                    context,
-                    '/moto_taxi_page',
-                    arguments: {'request_id': requestId},
-                  );
+                  if (mounted) {
+                    Navigator.pushNamed(
+                      context,
+                      '/moto_taxi_page',
+                      arguments: {'request_id': requestId},
+                    );
+                  }
                 } catch (e) {
                   // Handle error
                   print('Error: $e');
                 }
               },
-              child: Text('Moto Taxi'),
+              child: const Text('Moto Taxi'),
             ),
             ElevatedButton(
               onPressed: () async {
                 try {
                   int requestId = await findNearestEmployee(2); // Fuel Delivery
+                        if (!mounted) return;
                   Navigator.pushNamed(
                     context,
                     '/fuel_delivery_page',
@@ -122,7 +133,7 @@ class _UserPageState extends State<UserPage> {
                   print('Error: $e');
                 }
               },
-              child: Text('Fuel Delivery'),
+              child: const Text('Fuel Delivery'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -138,7 +149,7 @@ class _UserPageState extends State<UserPage> {
                   print('Error: $e');
                 }
               },
-              child: Text('Tow Truck'),
+              child: const Text('Tow Truck'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -155,7 +166,7 @@ class _UserPageState extends State<UserPage> {
                   print('Error: $e');
                 }
               },
-              child: Text('Mechanic Services'),
+              child: const Text('Mechanic Services'),
             ),
           ],
         ),

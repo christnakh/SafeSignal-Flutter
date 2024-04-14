@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class TowTruckPage extends StatelessWidget {
   final String userId;
 
-  TowTruckPage({required this.userId});
+  TowTruckPage({required this.userId, required int requestId});
 
   @override
   Widget build(BuildContext context) {
