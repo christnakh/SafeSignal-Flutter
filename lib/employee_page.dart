@@ -24,6 +24,7 @@ class _EmployeePageState extends State<EmployeePage> {
   Timer? _timer;
 
   List<EmployeeModel> _employees = [];
+  final List<UserLocation> _userLocations = [];
 
   @override
   void initState() {
@@ -61,9 +62,14 @@ class _EmployeePageState extends State<EmployeePage> {
         throw Exception('Failed to load employee');
       }
 
-      final employees = (data as List)
-          .map((e) => EmployeeModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final employees = (data as List).map((e) {
+        return EmployeeModel.fromJson(e as Map<String, dynamic>);
+      }).toList();
+
+      for (final employee in employees) {
+        final userLocation = await getUserLocation(employee.userId);
+        _userLocations.add(userLocation!);
+      }
 
       if (!mounted) return;
       setState(() {
@@ -186,6 +192,29 @@ class _EmployeePageState extends State<EmployeePage> {
     }
   }
 
+  Future<UserLocation?> getUserLocation(int userId) async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/locations_user/$userId',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final data = response.data;
+      if (data == null || data.isEmpty) {
+        throw Exception('Failed to load user location');
+      }
+
+      return UserLocation.fromJson(data as Map<String, dynamic>);
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -215,36 +244,64 @@ class _EmployeePageState extends State<EmployeePage> {
         itemCount: _employees.length,
         itemBuilder: (context, index) {
           final employee = _employees[index];
+
+          final userLocation = _userLocations.firstWhere(
+            (element) => element.userId == employee.userId,
+            orElse: () => const UserLocation(
+              locationId: 0,
+              userId: 0,
+              longitude: '0',
+              latitude: '0',
+              lastUpdated: '0',
+            ),
+          );
+
           return Card(
             margin: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('ID: ${employee.requestId}'),
-                Text('User ID: ${employee.userId}'),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text('User ID: ${employee.userId}'),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          'Location: ${userLocation.latitude}, ${userLocation.longitude}',
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 Text('Request Time: ${employee.requestTime}'),
-                Row(
-                  children: [
-                    Text('Status: ${employee.status}'),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.green,
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('Status: ${employee.status}')),
+                      const SizedBox(width: 16),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                        onPressed: () {
+                          _updateEmployeeStatus(employee.requestId, 'Accept');
+                        },
+                        child: const Text('Accept'),
                       ),
-                      onPressed: () {
-                        _updateEmployeeStatus(employee.requestId, 'Accept');
-                      },
-                      child: const Text('Accept'),
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.red,
+                      const SizedBox(width: 16),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: () {
+                          _updateEmployeeStatus(employee.requestId, 'Done');
+                        },
+                        child: const Text('Done'),
                       ),
-                      onPressed: () {
-                        _updateEmployeeStatus(employee.requestId, 'Done');
-                      },
-                      child: const Text('Done'),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Text(
                   'Estimated Arrival Time: ${employee.estimatedArrivalTime}',
@@ -418,5 +475,83 @@ class EmployeeLocation {
   @override
   int get hashCode {
     return employeeId.hashCode ^ longitude.hashCode ^ latitude.hashCode;
+  }
+}
+
+class UserLocation {
+  final int locationId;
+  final int userId;
+  final String longitude;
+  final String latitude;
+  final String lastUpdated;
+
+  const UserLocation({
+    required this.locationId,
+    required this.userId,
+    required this.longitude,
+    required this.latitude,
+    required this.lastUpdated,
+  });
+
+  factory UserLocation.fromJson(Map<String, dynamic> json) {
+    return UserLocation(
+      locationId: json['location_id'] as int,
+      userId: json['user_id'] as int,
+      longitude: json['longitude'] as String,
+      latitude: json['latitude'] as String,
+      lastUpdated: json['last_updated'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'location_id': locationId,
+      'user_id': userId,
+      'longitude': longitude,
+      'latitude': latitude,
+      'last_updated': lastUpdated,
+    };
+  }
+
+  UserLocation copyWith({
+    int? locationId,
+    int? userId,
+    String? longitude,
+    String? latitude,
+    String? lastUpdated,
+  }) {
+    return UserLocation(
+      locationId: locationId ?? this.locationId,
+      userId: userId ?? this.userId,
+      longitude: longitude ?? this.longitude,
+      latitude: latitude ?? this.latitude,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'UserLocation{location_id: $locationId, user_id: $userId, longitude: $longitude, latitude: $latitude, last_updated: $lastUpdated}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is UserLocation &&
+        other.locationId == locationId &&
+        other.userId == userId &&
+        other.longitude == longitude &&
+        other.latitude == latitude &&
+        other.lastUpdated == lastUpdated;
+  }
+
+  @override
+  int get hashCode {
+    return locationId.hashCode ^
+        userId.hashCode ^
+        longitude.hashCode ^
+        latitude.hashCode ^
+        lastUpdated.hashCode;
   }
 }
