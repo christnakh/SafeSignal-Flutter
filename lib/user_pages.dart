@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'fuel_delivery_page.dart';
 import 'mechanic_services_page.dart';
@@ -19,54 +19,63 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  bool _isLoading = true;
-  late LocationData _currentLocation;
   final Dio _dio = Dio();
 
   @override
   void initState() {
     super.initState();
-    _getLocation();
   }
 
-  Future<void> _getLocation() async {
-    Location location = Location();
-
+  Future<Position> _determinePosition() async {
     bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData? locationData;
+    LocationPermission permission;
 
-    serviceEnabled = await location.serviceEnabled();
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print(serviceEnabled);
     if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      print(permission);
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
       }
     }
 
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
+    if (permission == LocationPermission.deniedForever) {
+      print(permission);
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    locationData = await location.getLocation();
-    setState(() {
-      _currentLocation = locationData!;
-      _isLoading = false;
-    });
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
   }
 
   Future<int> findNearestEmployee(int role) async {
     try {
+      final position = await _determinePosition();
+
       final response = await _dio.post(
         'http://192.168.1.103:3000/find_nearest_employee',
         data: {
           'user_id': widget.userId,
-          'latitude': _currentLocation.latitude,
-          'longitude': _currentLocation.longitude,
+          'latitude': position.latitude,
+          'longitude': position.longitude,
           'role': role
         },
         options: Options(headers: {'Content-Type': 'application/json'}),
@@ -84,19 +93,65 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
+  Future<void> showServiceDialog(String taxi, void Function() onConfirm) {
+    return showDialog<Widget>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Are you sure you want to request $taxi'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No'),
+            ),
+            FilledButton(
+              onPressed: onConfirm,
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildNavigationButton(String text, int role) {
+    return Builder(builder: (ctx) {
+      return ElevatedButton(
+        onPressed: () async {
+          await showServiceDialog(text, () async {
+            try {
+              int requestId = await findNearestEmployee(role);
+              if (!ctx.mounted) return;
+
+              Navigator.pushReplacement(ctx,
+                  MaterialPageRoute(builder: (context) {
+                switch (role) {
+                  case 1:
+                    return MotoTaxiPage(requestId: requestId);
+                  case 2:
+                    return FuelDeliveryPage(requestId: requestId);
+                  case 3:
+                    return TowTruckPage(requestId: requestId);
+                  case 4:
+                    return MechanicServicesPage(requestId: requestId);
+                  default:
+                    throw Exception('Invalid Role');
+                }
+              }));
+            } catch (e) {
+              print('Error: $e');
+            }
+          });
+        },
+        child: Text(text),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Loading...'),
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Choose a Service'),
@@ -105,81 +160,10 @@ class _UserPageState extends State<UserPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  int requestId = await findNearestEmployee(1); // Moto Taxi
-                  // Navigate to Moto Taxi page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MotoTaxiPage(requestId: requestId),
-                    ),
-                  );
-                } catch (e) {
-                  // Handle error
-                  print('Error: $e');
-                }
-              },
-              child: const Text('Moto Taxi'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  int requestId = await findNearestEmployee(2); // Fuel Delivery
-                  // Navigate to Fuel Delivery page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          FuelDeliveryPage(requestId: requestId),
-                    ),
-                  );
-                } catch (e) {
-                  // Handle error
-                  print('Error: $e');
-                }
-              },
-              child: const Text('Fuel Delivery'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  int requestId = await findNearestEmployee(3); // Tow Truck
-                  // Navigate to Tow Truck page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TowTruckPage(requestId: requestId),
-                    ),
-                  );
-                } catch (e) {
-                  // Handle error
-                  print('Error: $e');
-                }
-              },
-              child: const Text('Tow Truck'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  int requestId =
-                      await findNearestEmployee(4); // Mechanic Services
-                  // Navigate to Mechanic Services page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          MechanicServicesPage(requestId: requestId),
-                    ),
-                  );
-                } catch (e) {
-                  // Handle error
-                  print('Error: $e');
-                }
-              },
-              child: const Text('Mechanic Services'),
-            ),
+            _buildNavigationButton('Moto Taxi', 1),
+            _buildNavigationButton('Fuel Delivery', 2),
+            _buildNavigationButton('Tow Truck', 3),
+            _buildNavigationButton('Mechanic Services', 4),
           ],
         ),
       ),

@@ -76,7 +76,7 @@ class _LoginFormState extends State<LoginForm> {
         if (_loginType == 'admin') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => AdminPage()),
+            MaterialPageRoute(builder: (context) => const AdminPage()),
           );
         } else if (_loginType == 'provider') {
           Navigator.pushReplacement(
