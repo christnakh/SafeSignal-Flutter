@@ -1,28 +1,34 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+
 import 'admin_page.dart';
 import 'employee_page.dart';
-import 'user_pages.dart';
 import 'session.dart'; // Import your session file
+import 'user_pages.dart';
 
 class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: const Text('Login'),
       ),
       body: ChangeNotifierProvider(
         create: (_) => Session(), // Provide the Session object
-        child: LoginForm(),
+        child: const LoginForm(),
       ),
     );
   }
 }
 
 class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
   @override
   _LoginFormState createState() => _LoginFormState();
 }
@@ -75,7 +81,9 @@ class _LoginFormState extends State<LoginForm> {
         } else if (_loginType == 'provider') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => EmployeePage()),
+            MaterialPageRoute(
+              builder: (context) => EmployeePage(id: data['userId'].toString()),
+            ),
           );
         } else {
           // Inside the _login function where you navigate to UserPage
@@ -90,7 +98,7 @@ class _LoginFormState extends State<LoginForm> {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         print('Error: ${errorData["error"]}');
         // Handle error
-  
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorData["error"])),
         );
@@ -99,7 +107,8 @@ class _LoginFormState extends State<LoginForm> {
       print('Exception: $e');
       // Handle exception
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred. Please try again later.')),
+        const SnackBar(
+            content: Text('An error occurred. Please try again later.')),
       );
     } finally {
       setState(() {
@@ -134,18 +143,20 @@ class _LoginFormState extends State<LoginForm> {
           ),
           TextField(
             controller: emailController,
-            decoration: InputDecoration(labelText: 'Email'),
+            decoration: const InputDecoration(labelText: 'Email'),
           ),
           TextField(
             controller: passwordController,
             obscureText: true,
-            decoration: InputDecoration(labelText: 'Password'),
+            decoration: const InputDecoration(labelText: 'Password'),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed:
                 _isLoading ? null : () => _login(context.read<Session>()),
-            child: _isLoading ? CircularProgressIndicator() : Text('Login'),
+            child: _isLoading
+                ? const CircularProgressIndicator()
+                : const Text('Login'),
           ),
         ],
       ),
