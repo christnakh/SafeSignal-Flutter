@@ -56,6 +56,40 @@ class _EmployeePageState extends State<EmployeePage> {
     }
   }
 
+  Future<void> _updateEmployeeStatus(int requestId, String status) async {
+    try {
+      final response = await _dio.put(
+        '$_baseUrl/status/$requestId',
+        data: {
+          'status': status,
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final data = response.data;
+
+      if (data == null || data.isEmpty) {
+        throw Exception('Failed to update employee status');
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _employees = _employees.map((employee) {
+          if (employee.requestId == requestId) {
+            return employee.copyWith(status: status);
+          }
+          return employee;
+        }).toList();
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -74,17 +108,45 @@ class _EmployeePageState extends State<EmployeePage> {
         itemCount: _employees.length,
         itemBuilder: (context, index) {
           final employee = _employees[index];
-          return Column(
-            children: [
-              Text('ID: ${employee.requestId}'),
-              Text('User ID: ${employee.userId}'),
-              Text('Request Time: ${employee.requestTime}'),
-              Text('Service Type: ${employee.serviceType}'),
-              Text('Details: ${employee.details}'),
-              Text('Status: ${employee.status}'),
-              Text('Estimated Arrival Time: ${employee.estimatedArrivalTime}'),
-              Text('Employee ID: ${employee.employeeId}'),
-            ],
+          return Card(
+            margin: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('ID: ${employee.requestId}'),
+                Text('User ID: ${employee.userId}'),
+                Text('Request Time: ${employee.requestTime}'),
+                Text('Service Type: ${employee.serviceType}'),
+                Text('Details: ${employee.details}'),
+                Row(
+                  children: [
+                    Text('Status: ${employee.status}'),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      onPressed: () {
+                        _updateEmployeeStatus(employee.requestId, 'Accept');
+                      },
+                      child: const Text('Accept'),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      onPressed: () {
+                        _updateEmployeeStatus(employee.requestId, 'Done');
+                      },
+                      child: const Text('Done'),
+                    ),
+                  ],
+                ),
+                Text(
+                  'Estimated Arrival Time: ${employee.estimatedArrivalTime}',
+                ),
+                Text('Employee ID: ${employee.employeeId}'),
+              ],
+            ),
           );
         },
       ),
