@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:senior_proj/register_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,8 +17,8 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      // home: RegisterPage(),
-      home: TestGeolocator(),
+      home: RegisterPage(),
+      // home: TestGeolocator(),
       debugShowCheckedModeBanner: false,
     );
   }
