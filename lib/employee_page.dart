@@ -32,7 +32,7 @@ class _EmployeePageState extends State<EmployeePage> {
     _getEmployee();
 
     _updateEmployeeLocation(widget.id);
-    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _updateEmployeeLocation(widget.id);
     });
   }
