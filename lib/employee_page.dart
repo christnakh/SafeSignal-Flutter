@@ -16,7 +16,7 @@ class _EmployeePageState extends State<EmployeePage> {
 
   static const String _baseUrl = 'http://192.168.1.103:3000/employees';
 
-  late final EmployeeModel _employee;
+  late final List<EmployeeModel> _employees;
 
   @override
   void initState() {
@@ -42,11 +42,13 @@ class _EmployeePageState extends State<EmployeePage> {
         throw Exception('Failed to load employee');
       }
 
-      final employee = EmployeeModel.fromJson(data as Map<String, dynamic>);
+      final employees = (data as List)
+          .map((e) => EmployeeModel.fromJson(e as Map<String, dynamic>))
+          .toList();
 
       if (!mounted) return;
       setState(() {
-        _employee = employee;
+        _employees = employees;
         _isLoading = false;
       });
     } catch (e) {
@@ -68,17 +70,23 @@ class _EmployeePageState extends State<EmployeePage> {
       appBar: AppBar(
         title: const Text('Employee Details'),
       ),
-      body: Column(
-        children: <Widget>[
-          Text('ID: ${_employee.requestId}'),
-          Text('User ID: ${_employee.userId}'),
-          Text('Request Time: ${_employee.requestTime}'),
-          Text('Service Type: ${_employee.serviceType}'),
-          Text('Details: ${_employee.details}'),
-          Text('Status: ${_employee.status}'),
-          Text('Estimated Arrival Time: ${_employee.estimatedArrivalTime}'),
-          Text('Employee ID: ${_employee.employeeId}'),
-        ],
+      body: ListView.builder(
+        itemCount: _employees.length,
+        itemBuilder: (context, index) {
+          final employee = _employees[index];
+          return Column(
+            children: [
+              Text('ID: ${employee.requestId}'),
+              Text('User ID: ${employee.userId}'),
+              Text('Request Time: ${employee.requestTime}'),
+              Text('Service Type: ${employee.serviceType}'),
+              Text('Details: ${employee.details}'),
+              Text('Status: ${employee.status}'),
+              Text('Estimated Arrival Time: ${employee.estimatedArrivalTime}'),
+              Text('Employee ID: ${employee.employeeId}'),
+            ],
+          );
+        },
       ),
     );
   }
