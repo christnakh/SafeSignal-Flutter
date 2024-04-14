@@ -32,7 +32,7 @@ class _EmployeePageState extends State<EmployeePage> {
     _getEmployee();
 
     _updateEmployeeLocation(widget.id);
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
       _updateEmployeeLocation(widget.id);
     });
   }
@@ -171,6 +171,8 @@ class _EmployeePageState extends State<EmployeePage> {
       if (data == null || data.isEmpty) {
         throw Exception('Failed to update employee location');
       }
+
+      print('Location updated');
 
       _employeeLocation.value = EmployeeLocation(
         employeeId: employeeId,
