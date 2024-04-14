@@ -8,8 +8,7 @@
       "name": "SafeSignal Flutter",
       "request": "launch",
       "type": "dart",
-      "deviceId": "chrome",
-      "args": ["--verbose"]
+      "deviceId": "chrome"
     },
     {
       "name": "SafeSignal Flutter (profile mode)",

@@ -1,11 +1,12 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'login_page.dart'; // Import your login page file
-import 'session.dart'; // Import your session file
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -22,7 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Registration'),
+        title: const Text('User Registration'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,31 +32,31 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             TextField(
               controller: firstNameController,
-              decoration: InputDecoration(labelText: 'First Name'),
+              decoration: const InputDecoration(labelText: 'First Name'),
             ),
             TextField(
               controller: lastNameController,
-              decoration: InputDecoration(labelText: 'Last Name'),
+              decoration: const InputDecoration(labelText: 'Last Name'),
             ),
             TextField(
               controller: phoneController,
-              decoration: InputDecoration(labelText: 'Phone'),
+              decoration: const InputDecoration(labelText: 'Phone'),
             ),
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Password'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 _register();
               },
-              child: Text('Register'),
+              child: const Text('Register'),
             ),
           ],
         ),
@@ -90,7 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => LoginPage()), // Navigate to login page
+            builder: (context) => const LoginPage()), // Navigate to login page
       );
     } else {
       // Registration failed

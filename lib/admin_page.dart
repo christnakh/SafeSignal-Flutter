@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ServiceProvider {
   final int id;
@@ -17,6 +18,8 @@ class ServiceProvider {
 }
 
 class AdminPage extends StatefulWidget {
+  const AdminPage({super.key});
+
   @override
   _AdminPageState createState() => _AdminPageState();
 }
@@ -32,7 +35,7 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Page'),
+        title: const Text('Admin Page'),
       ),
       body: ListView.builder(
         itemCount: providers.length,
@@ -42,7 +45,7 @@ class _AdminPageState extends State<AdminPage> {
             title: Text(provider.name),
             subtitle: Text(provider.email),
             trailing: IconButton(
-              icon: Icon(Icons.delete),
+              icon: const Icon(Icons.delete),
               onPressed: () => confirmDelete(context, provider.id),
             ),
           );
@@ -53,38 +56,38 @@ class _AdminPageState extends State<AdminPage> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('Add Service Provider'),
+              title: const Text('Add Service Provider'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: nameController,
-                    decoration: InputDecoration(labelText: 'Name'),
+                    decoration: const InputDecoration(labelText: 'Name'),
                   ),
                   TextField(
                     controller: emailController,
-                    decoration: InputDecoration(labelText: 'Email'),
+                    decoration: const InputDecoration(labelText: 'Email'),
                   ),
                   TextField(
                     controller: roleController,
-                    decoration: InputDecoration(labelText: 'Role'),
+                    decoration: const InputDecoration(labelText: 'Role'),
                   ),
                 ],
               ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 ElevatedButton(
                   onPressed: addServiceProvider,
-                  child: Text('Add'),
+                  child: const Text('Add'),
                 ),
               ],
             );
           },
         ),
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -142,20 +145,20 @@ class _AdminPageState extends State<AdminPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
-          content:
-              Text('Are you sure you want to delete this service provider?'),
+          title: const Text('Confirm Delete'),
+          content: const Text(
+              'Are you sure you want to delete this service provider?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
                 deleteServiceProvider(id);
                 Navigator.of(context).pop();
               },
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
