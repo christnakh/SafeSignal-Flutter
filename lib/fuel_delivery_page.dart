@@ -1,30 +1,18 @@
 import 'package:flutter/material.dart';
 
 class FuelDeliveryPage extends StatelessWidget {
-  final String userId;
+  final int requestId;
 
-  FuelDeliveryPage({required this.userId});
+  const FuelDeliveryPage({super.key, required this.requestId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Fuel Delivery Page'),
+        title: const Text('Fuel Delivery Page'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Welcome to Fuel Delivery Page!',
-              style: TextStyle(fontSize: 24.0),
-            ),
-            Text(
-              'User ID: $userId',
-              style: TextStyle(fontSize: 18.0),
-            ),
-          ],
-        ),
+        child: Text('Request ID: $requestId'),
       ),
     );
   }

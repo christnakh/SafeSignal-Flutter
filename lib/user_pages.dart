@@ -4,6 +4,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 
+import 'fuel_delivery_page.dart';
+import 'mechanic_services_page.dart';
+import 'moto_taxi_page.dart';
+import 'tow_truck_page.dart';
+
 class UserPage extends StatefulWidget {
   final String userId;
 
@@ -15,9 +20,7 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   bool _isLoading = true;
-
   late LocationData _currentLocation;
-
   final Dio _dio = Dio();
 
   @override
@@ -31,7 +34,7 @@ class _UserPageState extends State<UserPage> {
 
     bool serviceEnabled;
     PermissionStatus permissionGranted;
-    LocationData locationData;
+    LocationData? locationData;
 
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
@@ -51,21 +54,21 @@ class _UserPageState extends State<UserPage> {
 
     locationData = await location.getLocation();
     setState(() {
-      _currentLocation = locationData;
+      _currentLocation = locationData!;
       _isLoading = false;
     });
   }
 
   Future<int> findNearestEmployee(int role) async {
     try {
-      final response = await _dio.postUri(
-        Uri.parse('http://192.168.1.103:3000/find_nearest_employee'),
-        data: jsonEncode({
+      final response = await _dio.post(
+        'http://192.168.1.103:3000/find_nearest_employee',
+        data: {
           'user_id': widget.userId,
           'latitude': _currentLocation.latitude,
           'longitude': _currentLocation.longitude,
           'role': role
-        }),
+        },
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
@@ -73,11 +76,6 @@ class _UserPageState extends State<UserPage> {
       if (data == null || data.isEmpty) {
         throw Exception('Data is Empty');
       }
-
-      print(response.statusCode);
-
-      print(data);
-      print(data.runtimeType);
 
       final responseData = jsonDecode(data);
       return responseData['request_id'];
@@ -89,7 +87,14 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Material(child: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Loading...'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
 
     return Scaffold(
@@ -104,13 +109,13 @@ class _UserPageState extends State<UserPage> {
               onPressed: () async {
                 try {
                   int requestId = await findNearestEmployee(1); // Moto Taxi
-                  if (mounted) {
-                    Navigator.pushNamed(
-                      context,
-                      '/moto_taxi_page',
-                      arguments: {'request_id': requestId},
-                    );
-                  }
+                  // Navigate to Moto Taxi page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MotoTaxiPage(requestId: requestId),
+                    ),
+                  );
                 } catch (e) {
                   // Handle error
                   print('Error: $e');
@@ -122,11 +127,13 @@ class _UserPageState extends State<UserPage> {
               onPressed: () async {
                 try {
                   int requestId = await findNearestEmployee(2); // Fuel Delivery
-                        if (!mounted) return;
-                  Navigator.pushNamed(
+                  // Navigate to Fuel Delivery page
+                  Navigator.push(
                     context,
-                    '/fuel_delivery_page',
-                    arguments: {'request_id': requestId},
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          FuelDeliveryPage(requestId: requestId),
+                    ),
                   );
                 } catch (e) {
                   // Handle error
@@ -139,10 +146,12 @@ class _UserPageState extends State<UserPage> {
               onPressed: () async {
                 try {
                   int requestId = await findNearestEmployee(3); // Tow Truck
-                  Navigator.pushNamed(
+                  // Navigate to Tow Truck page
+                  Navigator.push(
                     context,
-                    '/tow_truck_page',
-                    arguments: {'request_id': requestId},
+                    MaterialPageRoute(
+                      builder: (context) => TowTruckPage(requestId: requestId),
+                    ),
                   );
                 } catch (e) {
                   // Handle error
@@ -156,10 +165,13 @@ class _UserPageState extends State<UserPage> {
                 try {
                   int requestId =
                       await findNearestEmployee(4); // Mechanic Services
-                  Navigator.pushNamed(
+                  // Navigate to Mechanic Services page
+                  Navigator.push(
                     context,
-                    '/mechanic_services_page',
-                    arguments: {'request_id': requestId},
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          MechanicServicesPage(requestId: requestId),
+                    ),
                   );
                 } catch (e) {
                   // Handle error
