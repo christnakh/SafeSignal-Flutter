@@ -115,6 +115,7 @@ class _EmployeePageState extends State<EmployeePage> {
 
     // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    print(serviceEnabled);
     if (!serviceEnabled) {
       // Location services are not enabled don't continue
       // accessing the position and request users of the
@@ -125,6 +126,7 @@ class _EmployeePageState extends State<EmployeePage> {
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
+      print(permission);
       if (permission == LocationPermission.denied) {
         // Permissions are denied, next time you could try
         // requesting permissions again (this is also where
@@ -136,6 +138,7 @@ class _EmployeePageState extends State<EmployeePage> {
     }
 
     if (permission == LocationPermission.deniedForever) {
+      print(permission);
       // Permissions are denied forever, handle appropriately.
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
@@ -150,7 +153,7 @@ class _EmployeePageState extends State<EmployeePage> {
     try {
       final locationData = await _determinePosition();
       final response = await _dio.post(
-        '$_baseUrl/location',
+        '$_baseUrl/locations_employe',
         data: {
           'employee_id': employeeId,
           'longitude': locationData.longitude,
@@ -164,7 +167,7 @@ class _EmployeePageState extends State<EmployeePage> {
       );
 
       final data = response.data;
-
+      print(data);
       if (data == null || data.isEmpty) {
         throw Exception('Failed to update employee location');
       }
