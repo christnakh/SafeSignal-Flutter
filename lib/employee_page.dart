@@ -14,9 +14,9 @@ class _EmployeePageState extends State<EmployeePage> {
   bool _isLoading = true;
   final Dio _dio = Dio();
 
-  static const String _baseUrl = 'http://192.168.1.103:3000/employees';
+  static const String _baseUrl = 'http://192.168.1.103:3000';
 
-  late final List<EmployeeModel> _employees;
+  List<EmployeeModel> _employees = [];
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _EmployeePageState extends State<EmployeePage> {
   Future<void> _getEmployee() async {
     try {
       final response = await _dio.get(
-        '$_baseUrl/${widget.id}',
+        '$_baseUrl/employees/${widget.id}',
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -116,8 +116,6 @@ class _EmployeePageState extends State<EmployeePage> {
                 Text('ID: ${employee.requestId}'),
                 Text('User ID: ${employee.userId}'),
                 Text('Request Time: ${employee.requestTime}'),
-                Text('Service Type: ${employee.serviceType}'),
-                Text('Details: ${employee.details}'),
                 Row(
                   children: [
                     Text('Status: ${employee.status}'),
