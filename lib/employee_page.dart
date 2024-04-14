@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 
 class EmployeePage extends StatefulWidget {
   const EmployeePage({super.key, required this.id});
@@ -16,6 +19,10 @@ class _EmployeePageState extends State<EmployeePage> {
 
   static const String _baseUrl = 'http://192.168.1.103:3000';
 
+  final ValueNotifier<EmployeeLocation?> _employeeLocation =
+      ValueNotifier(null);
+  Timer? _timer;
+
   List<EmployeeModel> _employees = [];
 
   @override
@@ -23,6 +30,18 @@ class _EmployeePageState extends State<EmployeePage> {
     super.initState();
 
     _getEmployee();
+
+    _updateEmployeeLocation(widget.id);
+    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      _updateEmployeeLocation(widget.id);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _employeeLocation.dispose();
+    super.dispose();
   }
 
   Future<void> _getEmployee() async {
@@ -90,6 +109,71 @@ class _EmployeePageState extends State<EmployeePage> {
     }
   }
 
+  Future<LocationData?> _getLocation() async {
+    Location location = Location();
+
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return null;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return null;
+      }
+    }
+
+    return location.getLocation();
+  }
+
+  Future<void> _updateEmployeeLocation(String employeeId) async {
+    final locationData = await _getLocation();
+
+    if (locationData == null) {
+      return;
+    }
+
+    try {
+      final response = await _dio.post(
+        '$_baseUrl/location',
+        data: {
+          'employee_id': employeeId,
+          'longitude': locationData.longitude,
+          'latitude': locationData.latitude,
+        },
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final data = response.data;
+
+      if (data == null || data.isEmpty) {
+        throw Exception('Failed to update employee location');
+      }
+
+      _employeeLocation.value = _employeeLocation.value?.copyWith(
+        employeeId: employeeId,
+        longitude: locationData.longitude.toString(),
+        latitude: locationData.latitude.toString(),
+      );
+
+      if (!mounted) return;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -103,6 +187,17 @@ class _EmployeePageState extends State<EmployeePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Employee Details'),
+        actions: [
+          ValueListenableBuilder<EmployeeLocation?>(
+              valueListenable: _employeeLocation,
+              builder: (_, it, __) {
+                if (it == null) return const SizedBox();
+
+                return Text(
+                  'Location: lat: ${it.latitude}, long: ${it.longitude}',
+                );
+              }),
+        ],
       ),
       body: ListView.builder(
         itemCount: _employees.length,
@@ -251,5 +346,65 @@ class EmployeeModel {
         status.hashCode ^
         estimatedArrivalTime.hashCode ^
         employeeId.hashCode;
+  }
+}
+
+class EmployeeLocation {
+  final String employeeId;
+  final String longitude;
+  final String latitude;
+
+  const EmployeeLocation({
+    required this.employeeId,
+    required this.longitude,
+    required this.latitude,
+  });
+
+  factory EmployeeLocation.fromJson(Map<String, dynamic> json) {
+    return EmployeeLocation(
+      employeeId: json['employee_id'] as String,
+      longitude: json['longitude'] as String,
+      latitude: json['latitude'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'employee_id': employeeId,
+      'longitude': longitude,
+      'latitude': latitude,
+    };
+  }
+
+  EmployeeLocation copyWith({
+    String? employeeId,
+    String? longitude,
+    String? latitude,
+  }) {
+    return EmployeeLocation(
+      employeeId: employeeId ?? this.employeeId,
+      longitude: longitude ?? this.longitude,
+      latitude: latitude ?? this.latitude,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'EmployeeLocation{employee_id: $employeeId, longitude: $longitude, latitude: $latitude}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is EmployeeLocation &&
+        other.employeeId == employeeId &&
+        other.longitude == longitude &&
+        other.latitude == latitude;
+  }
+
+  @override
+  int get hashCode {
+    return employeeId.hashCode ^ longitude.hashCode ^ latitude.hashCode;
   }
 }
