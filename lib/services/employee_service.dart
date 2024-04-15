@@ -45,8 +45,9 @@ class EmployeeService {
     final Dio dio = Dio();
     try {
       final response = await dio.postUri(
-        Uri.parse('$kBaseUrl/employees/$employeeId/location'),
+        Uri.parse('$kBaseUrl/locations_employe'),
         data: {
+          'employee_id': employeeId,
           'longitude': position.longitude,
           'latitude': position.latitude,
         },

@@ -89,19 +89,20 @@ class _LoginFormState extends State<LoginForm> {
       onSuccess: (user) {
         final userId = user.id.str;
         session.setUserId(userId);
+
         if (!mounted) return;
         switch (_loginType) {
           case LoginType.admin:
-            context.pushNamed(AdminScreen.routeNamed);
+            context.goNamed(AdminScreen.routeNamed);
             break;
           case LoginType.provider:
-            context.pushNamed(
+            context.goNamed(
               EmployeeScreen.routeNamed,
               pathParameters: {'id': userId},
             );
             break;
           case LoginType.user:
-            context.pushNamed(
+            context.goNamed(
               UserScreen.routeNamed,
               pathParameters: {'id': userId},
             );
@@ -166,7 +167,7 @@ class _LoginFormState extends State<LoginForm> {
         TextButton(
           onPressed: () {
             if (_isLoading) return;
-            context.pushNamed(RegisterScreen.routeNamed);
+            context.goNamed(RegisterScreen.routeNamed);
           },
           child: const Text('Register'),
         ),

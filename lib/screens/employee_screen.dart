@@ -75,12 +75,12 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
     );
   }
 
-  Future<void> onEmployeeStatusUpdate(int? id, String status) async {
+  Future<void> onEmployeeStatusUpdate(int? id, ServiceStatus status) async {
     if (id == null) return;
 
     EmployeeService.updateEmployeeStatus(
       requestId: id,
-      status: status,
+      status: status.name,
       onError: (message) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -96,6 +96,17 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
             backgroundColor: Colors.green,
           ),
         );
+
+        if (!mounted) return;
+        setState(() {
+          // update _employees status to the new status
+          _employees = _employees.map((employee) {
+            if (employee.requestId == id) {
+              return employee.copyWith(status: status);
+            }
+            return employee;
+          }).toList();
+        });
       },
     );
   }
@@ -142,18 +153,19 @@ class EmployeeCard extends StatelessWidget {
   final ServiceRequestModel employee;
   final LocationRecord userLocation;
 
-  final void Function(int? id, String status) onEmployeeStatusUpdate;
+  final void Function(int? id, ServiceStatus status) onEmployeeStatusUpdate;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('ID: ${employee.requestId}'),
-          Expanded(
-            child: Row(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('ID: ${employee.requestId}'),
+            Row(
               children: [
                 Text('User ID: ${employee.userId}'),
                 const SizedBox(width: 16),
@@ -164,12 +176,10 @@ class EmployeeCard extends StatelessWidget {
                 )
               ],
             ),
-          ),
-          Text('Request Time: ${employee.requestTime}'),
-          Expanded(
-            child: Row(
+            Text('Request Time: ${employee.requestTime}'),
+            Row(
               children: [
-                Expanded(child: Text('Status: ${employee.status}')),
+                Expanded(child: Text('Status: ${employee.status.name}')),
                 const SizedBox(width: 16),
                 TextButton(
                   style: TextButton.styleFrom(
@@ -178,7 +188,7 @@ class EmployeeCard extends StatelessWidget {
                   onPressed: () {
                     onEmployeeStatusUpdate(
                       employee.requestId,
-                      ServiceStatus.accept.name,
+                      ServiceStatus.accept,
                     );
                   },
                   child: const Text('Accept'),
@@ -191,19 +201,19 @@ class EmployeeCard extends StatelessWidget {
                   onPressed: () {
                     onEmployeeStatusUpdate(
                       employee.requestId,
-                      ServiceStatus.done.name,
+                      ServiceStatus.done,
                     );
                   },
                   child: const Text('Done'),
                 ),
               ],
             ),
-          ),
-          Text(
-            'Estimated Arrival Time: ${employee.estimatedArrivalTime}',
-          ),
-          Text('Employee ID: ${employee.employeeId}'),
-        ],
+            Text(
+              'Estimated Arrival Time: ${employee.estimatedArrivalTime}',
+            ),
+            Text('Employee ID: ${employee.employeeId}'),
+          ],
+        ),
       ),
     );
   }

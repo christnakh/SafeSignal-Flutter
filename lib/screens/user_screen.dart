@@ -108,7 +108,7 @@ class _UserScreenState extends State<UserScreen> {
           await showServiceDialog(text, () async {
             try {
               int requestId = await _findNearestEmployee(role.value);
-              if (!ctx.mounted) return;
+              if (!context.mounted) return;
 
               final String route = switch (role) {
                 ServiceProviderRoleEnum.moto => MotoTaxiScreen.routeNamed,
@@ -119,8 +119,7 @@ class _UserScreenState extends State<UserScreen> {
                   MechanicServicesScreen.routeNamed,
               };
 
-              ctx.pushNamed(route,
-                  pathParameters: {'id': requestId.toString()});
+              ctx.goNamed(route, pathParameters: {'id': requestId.toString()});
             } catch (e) {
               if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
