@@ -85,7 +85,7 @@ class _LoginFormState extends State<LoginForm> {
         );
       },
       onSuccess: (user) {
-        session.setUserId(user.id.toString());
+        session.setUserId(user.toString());
         if (!mounted) return;
         switch (_loginType) {
           case LoginType.admin:
@@ -94,13 +94,13 @@ class _LoginFormState extends State<LoginForm> {
           case LoginType.provider:
             context.goNamed(
               EmployeeScreen.routeNamed,
-              pathParameters: {'id': user.id.toString()},
+              pathParameters: {'id': user.toString()},
             );
             break;
           default:
             context.goNamed(
               UserScreen.routeNamed,
-              pathParameters: {'id': user.id.toString()},
+              pathParameters: {'id': user.toString()},
             );
             break;
         }
