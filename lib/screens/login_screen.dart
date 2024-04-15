@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:senior_proj/models/user_model.dart';
 import 'package:senior_proj/providers/session.dart';
+import 'package:senior_proj/screens/admin_screen.dart';
+import 'package:senior_proj/screens/employee_screen.dart';
+import 'package:senior_proj/screens/user_screen.dart';
 import 'package:senior_proj/services/user_service.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -86,17 +89,17 @@ class _LoginFormState extends State<LoginForm> {
         if (!mounted) return;
         switch (_loginType) {
           case LoginType.admin:
-            context.goNamed('admin_page');
+            context.goNamed(AdminScreen.routeNamed);
             break;
           case LoginType.provider:
             context.goNamed(
-              'employee_page',
+              EmployeeScreen.routeNamed,
               pathParameters: {'id': user.id.toString()},
             );
             break;
           default:
             context.goNamed(
-              'user_page',
+              UserScreen.routeNamed,
               pathParameters: {'id': user.id.toString()},
             );
             break;
