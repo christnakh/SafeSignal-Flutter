@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:senior_proj/extensions/nullable_extension.dart';
 import 'package:senior_proj/models/user_model.dart';
 import 'package:senior_proj/providers/session.dart';
 import 'package:senior_proj/screens/admin_screen.dart';
 import 'package:senior_proj/screens/employee_screen.dart';
+import 'package:senior_proj/screens/register_screen.dart';
 import 'package:senior_proj/screens/user_screen.dart';
 import 'package:senior_proj/services/user_service.dart';
 
@@ -12,7 +14,7 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   static const routeNamed = 'login';
-  static const route = '/login';
+  static const route = '/';
 
   @override
   Widget build(BuildContext context) {
@@ -85,24 +87,24 @@ class _LoginFormState extends State<LoginForm> {
         );
       },
       onSuccess: (user) {
-        session.setUserId(user.toString());
+        final userId = user.id.str;
+        session.setUserId(userId);
         if (!mounted) return;
         switch (_loginType) {
           case LoginType.admin:
-            context.goNamed(AdminScreen.routeNamed);
+            context.pushNamed(AdminScreen.routeNamed);
             break;
           case LoginType.provider:
-            context.goNamed(
+            context.pushNamed(
               EmployeeScreen.routeNamed,
-              pathParameters: {'id': user.toString()},
+              pathParameters: {'id': userId},
             );
             break;
-          default:
-            context.goNamed(
+          case LoginType.user:
+            context.pushNamed(
               UserScreen.routeNamed,
-              pathParameters: {'id': user.toString()},
+              pathParameters: {'id': userId},
             );
-            break;
         }
       },
     );
@@ -164,7 +166,7 @@ class _LoginFormState extends State<LoginForm> {
         TextButton(
           onPressed: () {
             if (_isLoading) return;
-            context.goNamed('register');
+            context.pushNamed(RegisterScreen.routeNamed);
           },
           child: const Text('Register'),
         ),

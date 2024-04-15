@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:senior_proj/components/app_loading_indicator.dart';
+import 'package:senior_proj/extensions/nullable_extension.dart';
 import 'package:senior_proj/models/service_provider_model.dart';
 import 'package:senior_proj/services/service_providers_service.dart';
 
@@ -58,8 +59,9 @@ class _AdminScreenState extends State<AdminScreen> {
         itemBuilder: (context, index) {
           final provider = _providers[index];
           return ListTile(
-            title: Text(provider.name),
-            subtitle: Text(provider.email),
+            title: Text(
+                'Name: ${provider.name.orEmpty} Email: ${provider.email.orEmpty}'),
+            subtitle: Text(provider.role.name),
             trailing: IconButton(
               icon: const Icon(Icons.delete),
               onPressed: provider.id == null
@@ -110,6 +112,7 @@ class _AdminScreenState extends State<AdminScreen> {
               ServiceProvidersService.deleteServiceProvider(
                 id: id,
                 onError: (message) {
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content:
@@ -117,6 +120,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       backgroundColor: Colors.red,
                     ),
                   );
+                  Navigator.of(context).pop();
                 },
                 onSuccess: () {
                   if (!mounted) return;
@@ -129,6 +133,9 @@ class _AdminScreenState extends State<AdminScreen> {
                   setState(() {
                     _providers.removeWhere((element) => element.id == id);
                   });
+
+                  if (!mounted) return;
+                  Navigator.of(context).pop();
                 },
               );
             },

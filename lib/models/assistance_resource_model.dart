@@ -2,13 +2,13 @@ import 'package:equatable/equatable.dart';
 
 class AssistanceResourceModel extends Equatable {
   final int? resourceId;
-  final String title;
+  final String? title;
   final String? content;
   final String? category;
 
   const AssistanceResourceModel({
     this.resourceId,
-    required this.title,
+    this.title,
     this.content,
     this.category,
   });
@@ -19,7 +19,7 @@ class AssistanceResourceModel extends Equatable {
   factory AssistanceResourceModel.fromJson(Map<String, dynamic> json) {
     return AssistanceResourceModel(
       resourceId: json['resource_id'] as int?,
-      title: json['title'] as String,
+      title: json['title'] as String?,
       content: json['content'] as String?,
       category: json['category'] as String?,
     );

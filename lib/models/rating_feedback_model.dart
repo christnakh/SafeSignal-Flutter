@@ -4,7 +4,7 @@ class RatingFeedbackModel extends Equatable {
   final int? ratingId;
   final int? userId;
   final int? requestId;
-  final int rating;
+  final int? rating;
   final String? feedback;
   final DateTime? ratingTime;
 
@@ -12,7 +12,7 @@ class RatingFeedbackModel extends Equatable {
     this.ratingId,
     this.userId,
     this.requestId,
-    required this.rating,
+    this.rating,
     this.feedback,
     this.ratingTime,
   });
@@ -26,7 +26,7 @@ class RatingFeedbackModel extends Equatable {
       ratingId: json['rating_id'] as int?,
       userId: json['user_id'] as int?,
       requestId: json['request_id'] as int?,
-      rating: json['rating'] as int,
+      rating: json['rating'] as int?,
       feedback: json['feedback'] as String?,
       ratingTime: json['rating_time'] == null
           ? null

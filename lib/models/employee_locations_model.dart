@@ -3,15 +3,15 @@ import 'package:equatable/equatable.dart';
 class EmployeeLocationModel extends Equatable {
   final int? locationId;
   final int? employeeId;
-  final String longitude;
-  final String latitude;
+  final String? longitude;
+  final String? latitude;
   final DateTime? lastUpdated;
 
   const EmployeeLocationModel({
     this.locationId,
     this.employeeId,
-    required this.longitude,
-    required this.latitude,
+    this.longitude,
+    this.latitude,
     this.lastUpdated,
   });
 
@@ -23,8 +23,8 @@ class EmployeeLocationModel extends Equatable {
     return EmployeeLocationModel(
       locationId: json['location_id'] as int?,
       employeeId: json['employee_id'] as int?,
-      longitude: json['longitude'] as String,
-      latitude: json['latitude'] as String,
+      longitude: json['longitude'] as String?,
+      latitude: json['latitude'] as String?,
       lastUpdated: json['last_updated'] == null
           ? null
           : DateTime.parse(json['last_updated'] as String),

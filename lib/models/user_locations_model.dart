@@ -3,15 +3,15 @@ import 'package:equatable/equatable.dart';
 class UserLocationModel extends Equatable {
   final int? locationId;
   final int? userId;
-  final String longitude;
-  final String latitude;
+  final String? longitude;
+  final String? latitude;
   final DateTime? lastUpdated;
 
   const UserLocationModel({
     this.locationId,
     this.userId,
-    required this.longitude,
-    required this.latitude,
+    this.longitude,
+    this.latitude,
     this.lastUpdated,
   });
 
@@ -23,8 +23,8 @@ class UserLocationModel extends Equatable {
     return UserLocationModel(
       locationId: json['location_id'] as int?,
       userId: json['user_id'] as int?,
-      longitude: json['longitude'] as String,
-      latitude: json['latitude'] as String,
+      longitude: json['longitude'] as String?,
+      latitude: json['latitude'] as String?,
       lastUpdated: json['last_updated'] == null
           ? null
           : DateTime.parse(json['last_updated'] as String),

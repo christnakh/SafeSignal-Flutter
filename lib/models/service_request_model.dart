@@ -17,7 +17,7 @@ class ServiceRequestModel extends Equatable {
   final int? requestId;
   final int? userId;
   final DateTime? requestTime;
-  final ServiceType serviceType;
+  final ServiceType? serviceType;
   final String? details;
   final ServiceStatus status;
   final String? estimatedArrivalTime;
@@ -27,7 +27,7 @@ class ServiceRequestModel extends Equatable {
     this.requestId,
     this.userId,
     this.requestTime,
-    required this.serviceType,
+    this.serviceType,
     this.details,
     this.status = ServiceStatus.pending,
     this.estimatedArrivalTime,
@@ -47,13 +47,15 @@ class ServiceRequestModel extends Equatable {
       ];
 
   factory ServiceRequestModel.fromJson(Map<String, dynamic> json) {
+    print(json);
+
     return ServiceRequestModel(
       requestId: json['request_id'] as int?,
       userId: json['user_id'] as int?,
       requestTime: json['request_time'] == null
           ? null
           : DateTime.parse(json['request_time'] as String),
-      serviceType: json['service_type'] as ServiceType,
+      serviceType: json['service_type'] as ServiceType?,
       details: json['details'] as String?,
       status: json['status'] as ServiceStatus? ?? ServiceStatus.pending,
       estimatedArrivalTime: json['estimated_arrival_time'] as String?,

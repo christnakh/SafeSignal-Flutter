@@ -17,7 +17,7 @@ class UserScreen extends StatefulWidget {
 
   final String userId;
 
-  static const routeNamed = '/user';
+  static const routeNamed = 'user';
   static const route = '/user/:id';
 
   @override
@@ -51,6 +51,9 @@ class _UserScreenState extends State<UserScreen> {
       }
 
       final responseData = jsonDecode(data);
+
+      print(responseData);
+
       return responseData['request_id'];
     } catch (e) {
       throw Exception('Failed to connect to server: $e');
@@ -116,7 +119,8 @@ class _UserScreenState extends State<UserScreen> {
                   MechanicServicesScreen.routeNamed,
               };
 
-              ctx.goNamed(route, pathParameters: {'id': requestId.toString()});
+              ctx.pushNamed(route,
+                  pathParameters: {'id': requestId.toString()});
             } catch (e) {
               if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(

@@ -8,35 +8,35 @@ enum LoginType {
 
 class User extends Equatable {
   final int? id;
-  final String firstName;
-  final String lastName;
-  final String phone;
-  final String email;
-  final String password;
+  final String? firstName;
+  final String? lastName;
+  final String? phone;
+  final String? email;
+  final String? password;
 
   const User({
     this.id,
-    required this.firstName,
-    required this.lastName,
-    required this.phone,
-    required this.email,
-    required this.password,
+    this.firstName,
+    this.lastName,
+    this.phone,
+    this.email,
+    this.password,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['user_id'] as int?,
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      phone: json['phone'],
-      email: json['email'],
-      password: json['password'],
+      id: json['userId'] as int?,
+      firstName: json['first_name'] as String?,
+      lastName: json['last_name'] as String?,
+      phone: json['phone'] as String?,
+      email: json['email'] as String?,
+      password: json['password'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'user_id': id ?? 0,
+      'user_id': id,
       'first_name': firstName,
       'last_name': lastName,
       'phone': phone,

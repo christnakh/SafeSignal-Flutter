@@ -3,14 +3,14 @@ import 'package:equatable/equatable.dart';
 class TransactionModel extends Equatable {
   final int? transactionId;
   final int? requestId;
-  final double amount;
+  final double? amount;
   final String? paymentMethod;
   final DateTime? transactionTime;
 
   const TransactionModel({
     this.transactionId,
     this.requestId,
-    required this.amount,
+    this.amount,
     this.paymentMethod,
     this.transactionTime,
   });
@@ -28,7 +28,7 @@ class TransactionModel extends Equatable {
     return TransactionModel(
       transactionId: json['transaction_id'] as int?,
       requestId: json['request_id'] as int?,
-      amount: json['amount'] as double,
+      amount: json['amount'] as double?,
       paymentMethod: json['payment_method'] as String?,
       transactionTime: json['transaction_time'] == null
           ? null

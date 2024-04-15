@@ -11,22 +11,26 @@ class UserService {
     required String password,
     required LoginType type,
     void Function(String message)? onError,
-    void Function(String userID)? onSuccess,
+    void Function(User userID)? onSuccess,
   }) async {
     final Dio dio = Dio();
     try {
-      final response =
-          await dio.postUri(Uri.parse('$kBaseUrl/${getLoginTypeRoute(type)}'),
-              data: {
-                'email': email,
-                'password': password,
-              },
-              options: Options(contentType: Headers.jsonContentType));
+      final route = getLoginTypeRoute(type);
+      final response = await dio.postUri(
+        Uri.parse('$kBaseUrl/$route'),
+        data: {
+          'email': email,
+          'password': password,
+        },
+        options: Options(
+          contentType: Headers.jsonContentType,
+        ),
+      );
 
       final data = response.data;
 
       if (data is Map<String, dynamic>) {
-        onSuccess?.call(data['userId']);
+        onSuccess?.call(User.fromJson(data));
       } else {
         throw Exception('Failed to login status: ${response.statusCode}');
       }

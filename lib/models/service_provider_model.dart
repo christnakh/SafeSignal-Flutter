@@ -10,19 +10,36 @@ enum ServiceProviderRoleEnum {
   final int value;
 }
 
+extension ServiceProviderRoleEnumExtension on int? {
+  String get name {
+    switch (this) {
+      case 1:
+        return 'Moto Taxi';
+      case 2:
+        return 'Fuel Delivery';
+      case 3:
+        return 'Tow Truck';
+      case 4:
+        return 'Mechanic Services';
+      default:
+        return 'Unknown Role';
+    }
+  }
+}
+
 class ServiceProviderModel extends Equatable {
   final int? id;
-  final String name;
-  final String email;
-  final String password;
-  final int role;
+  final String? name;
+  final String? email;
+  final String? password;
+  final int? role;
 
   const ServiceProviderModel({
     this.id,
-    required this.name,
-    required this.email,
-    required this.password,
-    required this.role,
+    this.name,
+    this.email,
+    this.password,
+    this.role,
   });
 
   @override
@@ -31,10 +48,10 @@ class ServiceProviderModel extends Equatable {
   factory ServiceProviderModel.fromJson(Map<String, dynamic> json) {
     return ServiceProviderModel(
       id: json['provider_id'] as int?,
-      name: json['provider_name'] as String,
-      email: json['email'] as String,
-      password: json['password'] as String,
-      role: json['role'] as int,
+      name: json['provider_name'] as String?,
+      email: json['email'] as String?,
+      password: json['password'] as String?,
+      role: json['role'] as int?,
     );
   }
 

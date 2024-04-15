@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:senior_proj/screens/admin_screen.dart';
@@ -13,6 +14,19 @@ import 'package:url_strategy/url_strategy.dart';
 
 void main() {
   setPathUrlStrategy();
+
+  FlutterError.onError = (errorDetails) {
+    // ignore: avoid_print
+    print('FlutterError.onError: $errorDetails');
+  };
+
+  // Pass all uncaught asynchronous errors that aren't handled by Flutter
+  PlatformDispatcher.instance.onError = (error, stack) {
+    // ignore: avoid_print
+    // print('PlatformDispatcher.instance.onError: $error');
+
+    return false;
+  };
 
   runApp(const MyApp());
 }
