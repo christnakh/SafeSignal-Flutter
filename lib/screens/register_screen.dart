@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:senior_proj/models/user_model.dart';
+import 'package:senior_proj/screens/login_screen.dart';
 import 'package:senior_proj/services/user_service.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -61,7 +62,7 @@ class _RegisterFormState extends State<RegisterForm> {
         password: passwordController.text,
       ),
       onSuccess: () {
-        context.replaceNamed('/login');
+        context.replaceNamed(LoginScreen.routeNamed);
       },
       onError: (String message) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -113,7 +114,7 @@ class _RegisterFormState extends State<RegisterForm> {
             onPressed: _isLoading
                 ? null
                 : () {
-                    context.pushReplacement('/login');
+                    context.replaceNamed(LoginScreen.routeNamed);
                   },
             child: const Text('Login'),
           )

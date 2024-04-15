@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 final _router = GoRouter(
-  initialLocation: '${UserScreen.routeNamed}/1',
+  initialLocation: LoginScreen.route,
   routes: [
     GoRoute(
       name: AdminScreen.routeNamed,
