@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:senior_proj/models/service_request_model.dart';
 import 'package:senior_proj/services/request_service.dart';
 
-class FuelDeliveryPage extends StatefulWidget {
+class MotoTaxiScreen extends StatefulWidget {
   final int requestId;
 
-  const FuelDeliveryPage({super.key, required this.requestId});
+  const MotoTaxiScreen({super.key, required this.requestId});
+
+  static const routeNamed = 'moto_taxi';
+  static const route = '/moto_taxi/:id';
 
   @override
-  State<FuelDeliveryPage> createState() => _FuelDeliveryPageState();
+  State<MotoTaxiScreen> createState() => _MotoTaxiScreenState();
 }
 
-class _FuelDeliveryPageState extends State<FuelDeliveryPage> {
+class _MotoTaxiScreenState extends State<MotoTaxiScreen> {
   bool _isLoading = true;
 
   late final ServiceRequestModel _request;
@@ -44,7 +48,7 @@ class _FuelDeliveryPageState extends State<FuelDeliveryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fuel Delivery Page'),
+        title: const Text('Moto Taxi Page'),
       ),
       body: Column(
         children: <Widget>[

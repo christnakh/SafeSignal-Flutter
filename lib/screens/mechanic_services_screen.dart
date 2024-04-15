@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:senior_proj/models/service_request_model.dart';
 import 'package:senior_proj/services/request_service.dart';
 
-class TowTruckPage extends StatefulWidget {
+class MechanicServicesScreen extends StatefulWidget {
   final int requestId;
 
-  const TowTruckPage({super.key, required this.requestId});
+  const MechanicServicesScreen({super.key, required this.requestId});
+
+  static const routeNamed = 'mechanic_services';
+  static const route = '/mechanic_services/:id';
 
   @override
-  State<TowTruckPage> createState() => _TowTruckPageState();
+  State<MechanicServicesScreen> createState() => _MechanicServicesScreenState();
 }
 
-class _TowTruckPageState extends State<TowTruckPage> {
+class _MechanicServicesScreenState extends State<MechanicServicesScreen> {
   bool _isLoading = true;
 
   late final ServiceRequestModel _request;
@@ -44,7 +48,7 @@ class _TowTruckPageState extends State<TowTruckPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tow Truck Page'),
+        title: const Text('Mechanic Services Page'),
       ),
       body: Column(
         children: <Widget>[
