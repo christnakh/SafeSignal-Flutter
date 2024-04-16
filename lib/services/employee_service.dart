@@ -13,7 +13,7 @@ class EmployeeService {
     final Dio dio = Dio();
     try {
       final response = await dio.getUri(
-        Uri.parse('$kBaseUrl/service_providers/$id'),
+        Uri.parse('$kBaseUrl/employees/$id'),
         options: Options(
           contentType: Headers.jsonContentType,
         ),
@@ -21,8 +21,12 @@ class EmployeeService {
 
       final data = response.data;
 
-      if (data == null || data.isEmpty) {
+      if (data == null) {
         throw Exception('Failed to load employee');
+      }
+
+      if (data.isEmpty) {
+        return [];
       }
 
       final employees = (data as List).map((e) {

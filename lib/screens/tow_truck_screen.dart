@@ -50,17 +50,35 @@ class _TowTruckScreenState extends State<TowTruckScreen> {
       appBar: AppBar(
         title: const Text('Tow Truck Page'),
       ),
-      body: Column(
-        children: <Widget>[
-          Text('Request ID: ${_request.requestId}'),
-          Text('User ID: ${_request.userId}'),
-          Text('Request Time: ${_request.requestTime}'),
-          Text('Service Type: ${_request.serviceType}'),
-          Text('Details: ${_request.details}'),
-          Text('Status: ${_request.status}'),
-          Text('Estimated Arrival Time: ${_request.estimatedArrivalTime}'),
-          Text('Employee ID: ${_request.employeeId}'),
-        ],
+      body: Center(
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text('Request ID: ${_request.requestId}'),
+                const SizedBox(height: 8),
+                Text('User ID: ${_request.userId}'),
+                const SizedBox(height: 8),
+                Text('Request Time: ${_request.requestTime}'),
+                const SizedBox(height: 8),
+                Text('Service Type: ${_request.serviceType?.name}'),
+                const SizedBox(height: 8),
+                Text('Details: ${_request.details}'),
+                const SizedBox(height: 8),
+                Text('Status: ${_request.status.name}'),
+                const SizedBox(height: 8),
+                Text(
+                  'Estimated Arrival Time: ${_request.estimatedArrivalTime}',
+                ),
+                const SizedBox(height: 8),
+                Text('Employee ID: ${_request.employeeId}'),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

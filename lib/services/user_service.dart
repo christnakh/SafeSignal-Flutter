@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:senior_proj/constants/environment.dart';
 import 'package:senior_proj/models/user_locations_model.dart';
 import 'package:senior_proj/models/user_model.dart';
@@ -92,6 +93,33 @@ class UserService {
     } catch (e) {
       onError?.call(e.toString());
       return null;
+    }
+  }
+
+  static Future<void> updateUserLocation({
+    required String userId,
+    required Position position,
+    void Function()? onSuccess,
+    void Function(String message)? onError,
+  }) async {
+    final Dio dio = Dio();
+    try {
+      final response = await dio.postUri(
+        Uri.parse('$kBaseUrl/locations_user'),
+        data: {
+          'user_id': userId,
+          'longitude': position.longitude,
+          'latitude': position.latitude,
+        },
+      );
+
+      if (response.data == null || response.data.isEmpty) {
+        throw Exception('Failed to update location');
+      }
+
+      return onSuccess?.call();
+    } catch (e) {
+      onError?.call(e.toString());
     }
   }
 }

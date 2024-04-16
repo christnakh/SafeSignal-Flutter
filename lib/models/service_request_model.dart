@@ -1,11 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-enum ServiceType {
-  moto,
-  tow,
-  mechanic,
-  refuel,
-}
+import 'package:senior_proj/models/service_provider_model.dart';
 
 enum ServiceStatus {
   pending,
@@ -17,7 +11,7 @@ class ServiceRequestModel extends Equatable {
   final int? requestId;
   final int? userId;
   final DateTime? requestTime;
-  final ServiceType? serviceType;
+  final ServiceProviderRoleEnum? serviceType;
   final String? details;
   final ServiceStatus status;
   final String? estimatedArrivalTime;
@@ -47,20 +41,46 @@ class ServiceRequestModel extends Equatable {
       ];
 
   factory ServiceRequestModel.fromJson(Map<String, dynamic> json) {
-    print(json);
-
     return ServiceRequestModel(
       requestId: json['request_id'] as int?,
       userId: json['user_id'] as int?,
       requestTime: json['request_time'] == null
           ? null
           : DateTime.parse(json['request_time'] as String),
-      serviceType: json['service_type'] as ServiceType?,
+      serviceType: getServiceProviderRoleEnum(json['service_type'] as String?),
       details: json['details'] as String?,
-      status: json['status'] as ServiceStatus? ?? ServiceStatus.pending,
+      status: getStatus(json['status'] as String?),
       estimatedArrivalTime: json['estimated_arrival_time'] as String?,
       employeeId: json['employee_id'] as int?,
     );
+  }
+
+  // get serviceType from string
+  static ServiceProviderRoleEnum? getServiceProviderRoleEnum(String? type) {
+    switch (type) {
+      case 'moto':
+        return ServiceProviderRoleEnum.moto;
+      case 'towTruck':
+        return ServiceProviderRoleEnum.towTruck;
+      case 'mechanic':
+        return ServiceProviderRoleEnum.mechanic;
+      case 'fuelDelivery':
+        return ServiceProviderRoleEnum.fuelDelivery;
+      default:
+        return null;
+    }
+  }
+
+  // getStatus from ServiceStatus
+  static ServiceStatus getStatus(String? status) {
+    switch (status) {
+      case 'accept':
+        return ServiceStatus.accept;
+      case 'done':
+        return ServiceStatus.done;
+      default:
+        return ServiceStatus.pending;
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -68,9 +88,9 @@ class ServiceRequestModel extends Equatable {
       'request_id': requestId,
       'user_id': userId,
       'request_time': requestTime?.toIso8601String(),
-      'service_type': serviceType,
+      'service_type': serviceType?.name,
       'details': details,
-      'status': status,
+      'status': status.name,
       'estimated_arrival_time': estimatedArrivalTime,
       'employee_id': employeeId,
     };
@@ -80,7 +100,7 @@ class ServiceRequestModel extends Equatable {
     int? requestId,
     int? userId,
     DateTime? requestTime,
-    ServiceType? serviceType,
+    ServiceProviderRoleEnum? serviceType,
     String? details,
     ServiceStatus? status,
     String? estimatedArrivalTime,

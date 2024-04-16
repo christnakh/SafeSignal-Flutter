@@ -14,15 +14,12 @@ class RequestService {
 
       final data = response.data;
       if (data is! Map<String, dynamic> || data.isEmpty) {
-        throw Exception('Service request not found');
-      }
-
-      if (response.statusCode == 404) {
-        throw Exception('Service request not found');
+        throw Exception('Service request empty data');
       }
 
       return ServiceRequestModel.fromJson(response.data);
     } catch (e) {
+      print(e);
       throw Exception('Error fetching service request');
     }
   }
